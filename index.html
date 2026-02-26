@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Konfigurator Obrączek</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Source+Sans+3:wght@300;400;500;600&family=Cormorant+Garamond:wght@400;500;600&family=Lato:wght@300;400;700&display=swap');
+
+  :root {
+    --bg:#faf9f7;--panel-bg:#fff;--primary:#1a4d3e;--primary-dark:#0f3529;
+    --primary-light:#e8f0ed;--primary-rgb:26,77,62;
+    --cta-bg:#1a4d3e;--cta-text:#fff;--cta-hover:#0f3529;
+    --text:#1a1a1a;--text-muted:#7a7a7a;--text-light:#aaa;
+    --border:#e8e6e2;--border-light:#f0eeeb;--cream:#fdfcfa;
+    --font-heading:'Playfair Display',serif;--font-body:'Source Sans 3',sans-serif;
+    --logo-text:'Konfigurator';--logo-size:26px;--logo-weight:500;--logo-spacing:2px;
+    --topbar-bg:#1a4d3e;--topbar-text:#fff;
+    --btn-radius:0px;--viewer-bg:#e8e5e0;
+    --badge-bg:#1a4d3e;--badge-text:#fff;
+    --swatch-selected-border:#1a4d3e;
+    --pill-selected-bg:#1a4d3e;--pill-selected-text:#fff;
+    --price-color:#1a4d3e;
+  }
+  [data-theme="verona"] {
+    --bg:#fbfaf9;--panel-bg:#fff;--primary:#8B2252;--primary-dark:#6B1842;
+    --primary-light:#f5e8ee;--primary-rgb:139,34,82;
+    --cta-bg:#8B2252;--cta-text:#fff;--cta-hover:#6B1842;
+    --text:#1a1a1a;--text-muted:#888;--text-light:#bbb;
+    --border:#e5e3e0;--border-light:#f0eeed;--cream:#fefdfb;
+    --font-heading:'Cormorant Garamond',serif;--font-body:'Lato',sans-serif;
+    --logo-text:'VERONA';--logo-size:28px;--logo-weight:600;--logo-spacing:5px;
+    --topbar-bg:#8B2252;--topbar-text:#fff;
+    --btn-radius:0px;--viewer-bg:#f0ece8;
+    --badge-bg:#8B2252;--badge-text:#fff;
+    --swatch-selected-border:#8B2252;
+    --pill-selected-bg:#8B2252;--pill-selected-text:#fff;
+    --price-color:#8B2252;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:var(--font-body);background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden;transition:background .4s}
+
+  .theme-switcher{position:fixed;bottom:24px;right:24px;z-index:1000;display:flex;border-radius:8px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.15);border:1px solid rgba(0,0,0,.1)}
+  .theme-btn{padding:10px 18px;font-family:'Source Sans 3',sans-serif;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;cursor:pointer;border:none;transition:all .3s}
+  .theme-btn.yes-btn{background:#1a4d3e;color:#fff}
+  .theme-btn.verona-btn{background:#8B2252;color:#fff}
+  .theme-btn.active{box-shadow:inset 0 -3px 0 rgba(255,255,255,.5)}
+  .theme-btn:not(.active){opacity:.5}
+  .theme-btn:hover{opacity:1}
+
+  .top-bar{background:var(--topbar-bg);color:var(--topbar-text);text-align:center;padding:8px 20px;font-size:12px;letter-spacing:.5px;font-weight:300;transition:background .4s}
+  .top-bar strong{font-weight:500}
+  .top-bar .topbar-yes{display:block}.top-bar .topbar-verona{display:none}
+  [data-theme="verona"] .top-bar .topbar-yes{display:none}
+  [data-theme="verona"] .top-bar .topbar-verona{display:block}
+
+  header{display:flex;align-items:center;justify-content:space-between;height:64px;padding:0 40px;background:var(--panel-bg);border-bottom:1px solid var(--border);transition:all .4s}
+  .logo{font-family:var(--font-heading);font-size:var(--logo-size);font-weight:var(--logo-weight);color:var(--primary);letter-spacing:var(--logo-spacing);transition:all .4s}
+  .header-nav{display:flex;gap:32px}
+  .header-nav a{font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:1.5px;color:var(--text);text-decoration:none;padding:4px 0;border-bottom:2px solid transparent;transition:all .2s;font-family:var(--font-body)}
+  .header-nav a:hover{color:var(--primary)}.header-nav a.active{color:var(--primary);border-bottom-color:var(--primary)}
+  .header-icons{display:flex;gap:18px;align-items:center}
+  .header-icons svg{width:20px;height:20px;stroke:var(--text);fill:none;stroke-width:1.5;cursor:pointer;transition:stroke .2s}
+  .header-icons svg:hover{stroke:var(--primary)}
+  .nav-yes{display:inline}.nav-verona{display:none}
+  [data-theme="verona"] .nav-yes{display:none}[data-theme="verona"] .nav-verona{display:inline}
+
+  .breadcrumb{padding:12px 40px;font-size:12px;color:var(--text-muted);background:var(--panel-bg);border-bottom:1px solid var(--border-light);transition:all .4s}
+  .breadcrumb span{color:var(--text)}
+  .main{display:flex;flex:1;overflow:hidden}
+
+  .stepper{width:210px;background:var(--panel-bg);border-right:1px solid var(--border);padding:28px 0;flex-shrink:0;transition:all .4s}
+  .step{display:flex;align-items:center;gap:14px;padding:14px 24px;cursor:pointer;transition:all .2s;position:relative}
+  .step:hover{background:rgba(var(--primary-rgb),.04)}.step.active{background:var(--primary-light)}
+  .step.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--primary)}
+  .step-num{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--text-muted);flex-shrink:0;transition:all .25s}
+  .step.active .step-num{border-color:var(--primary);background:var(--primary);color:#fff}
+  .step.completed .step-num{border-color:var(--primary);color:var(--primary);background:var(--primary-light)}
+  .step-label{font-size:13px;font-weight:400;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;font-family:var(--font-body)}
+  .step.active .step-label{color:var(--primary-dark);font-weight:500}.step.completed .step-label{color:var(--text)}
+  .stepper-divider{height:1px;background:var(--border-light);margin:20px 24px}
+  .stepper-action{display:flex;align-items:center;gap:10px;padding:10px 24px;font-size:12px;color:var(--text-muted);cursor:pointer}
+  .stepper-action:hover{color:var(--primary)}
+  .stepper-action svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.5}
+
+  .config-panel{flex:1;padding:36px 40px;overflow-y:auto;max-width:580px;background:var(--cream);transition:all .4s}
+  .config-panel h2{font-family:var(--font-heading);font-size:30px;font-weight:400;margin-bottom:28px;transition:font-family .4s}
+  .config-section{display:none}.config-section.active{display:block}
+  .section-label{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--text-muted);margin-bottom:14px;font-weight:500}
+
+  .profile-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:28px}
+  .profile-card{border:1.5px solid var(--border);border-radius:6px;padding:18px 8px 14px;text-align:center;cursor:pointer;transition:all .2s;background:var(--panel-bg)}
+  .profile-card:hover{border-color:var(--primary)}.profile-card.selected{border-color:var(--primary);background:var(--primary-light)}
+  .profile-card svg{width:56px;height:36px;margin-bottom:8px;color:var(--text-muted)}
+  .profile-card.selected svg{color:var(--primary)}
+  .profile-card span{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted)}
+  .profile-card.selected span{color:var(--primary-dark);font-weight:500}
+
+  .dim-group{margin-bottom:24px}
+  .dim-group label{display:flex;justify-content:space-between;font-size:12px;text-transform:uppercase;letter-spacing:1.2px;color:var(--text-muted);margin-bottom:10px}
+  .dim-group .dim-val{color:var(--primary);font-weight:600;font-size:13px;letter-spacing:0}
+  input[type="range"]{-webkit-appearance:none;width:100%;height:2px;background:var(--border);border-radius:1px;outline:none}
+  input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--panel-bg);border:2px solid var(--primary);cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,.08)}
+
+  .color-division-grid{display:flex;gap:10px;margin-bottom:28px}
+  .color-div-card{flex:1;border:1.5px solid var(--border);border-radius:6px;padding:14px 8px;text-align:center;cursor:pointer;transition:all .2s;background:var(--panel-bg)}
+  .color-div-card:hover{border-color:var(--primary)}.color-div-card.selected{border-color:var(--primary);background:var(--primary-light)}
+  .color-div-card .preview{width:48px;height:26px;border-radius:16px;margin:0 auto 8px;overflow:hidden;display:flex;border:1px solid rgba(0,0,0,.06)}
+  .color-div-card .preview div{flex:1}
+  .color-div-card span{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted)}
+  .color-div-card.selected span{color:var(--primary-dark)}
+
+  .metal-selector{margin-bottom:16px;padding:20px;background:var(--panel-bg);border-radius:8px;border:1px solid var(--border-light)}
+  .ms-title{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--text-muted);margin-bottom:14px;font-weight:500}
+  .metal-row{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .metal-swatch{width:30px;height:30px;border-radius:50%;border:2.5px solid transparent;cursor:pointer;transition:all .15s;flex-shrink:0}
+  .metal-swatch:hover{transform:scale(1.12)}.metal-swatch.selected{border-color:var(--swatch-selected-border);transform:scale(1.12);box-shadow:0 0 0 2px var(--primary-light)}
+  .metal-swatch.yellow-gold{background:linear-gradient(145deg,#d4a843,#f2d06b,#c9963a)}
+  .metal-swatch.white-gold{background:linear-gradient(145deg,#c5c5c5,#ececec,#b8b8b8)}
+  .metal-swatch.rose-gold{background:linear-gradient(145deg,#c47a6a,#e8a99a,#b86b5a)}
+  .metal-swatch.platinum{background:linear-gradient(145deg,#d8d8d8,#f4f4f4,#cccccc)}
+  .metal-label{font-size:13px;color:var(--text)}
+
+  .fineness-grid{display:flex;gap:6px;flex-wrap:wrap}
+  .fineness-btn{padding:6px 14px;border:1.5px solid var(--border);border-radius:20px;font-size:12px;cursor:pointer;background:var(--panel-bg);transition:all .15s;font-family:var(--font-body);color:var(--text-muted)}
+  .fineness-btn:hover{border-color:var(--primary);color:var(--primary)}
+  .fineness-btn.selected{border-color:var(--pill-selected-bg);background:var(--pill-selected-bg);color:var(--pill-selected-text)}
+
+  .surface-row{display:flex;gap:8px;margin-top:12px}
+  .surface-btn{padding:6px 16px;border:1.5px solid var(--border);border-radius:20px;font-size:11px;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;background:var(--panel-bg);transition:all .15s;font-family:var(--font-body);color:var(--text-muted)}
+  .surface-btn:hover{border-color:var(--primary);color:var(--primary)}
+  .surface-btn.selected{border-color:var(--pill-selected-bg);background:var(--pill-selected-bg);color:var(--pill-selected-text)}
+
+  .nav-buttons{display:flex;gap:12px;margin-top:36px}
+  .btn{padding:14px 36px;font-family:var(--font-body);font-size:13px;text-transform:uppercase;letter-spacing:2px;cursor:pointer;border-radius:var(--btn-radius);transition:all .2s;border:none;font-weight:500}
+  .btn-prev{background:transparent;border:1.5px solid var(--border);color:var(--text-muted)}
+  .btn-prev:hover{border-color:var(--primary);color:var(--primary)}
+  .btn-next{background:var(--cta-bg);color:var(--cta-text)}
+  .btn-next:hover{background:var(--cta-hover)}
+
+  /* ====== PRICE BAR ====== */
+  .price-bar{
+    position:sticky;bottom:0;left:0;right:0;
+    background:var(--panel-bg);border-top:1px solid var(--border);
+    padding:16px 40px;display:flex;align-items:center;justify-content:space-between;
+    z-index:10;
+  }
+  .price-bar .price-left{display:flex;flex-direction:column;gap:2px}
+  .price-bar .price-label{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-muted);font-weight:400}
+  .price-bar .price-amount{font-family:var(--font-heading);font-size:28px;font-weight:500;color:var(--price-color);transition:color .4s}
+  .price-bar .price-amount small{font-size:14px;font-weight:400;color:var(--text-muted);margin-left:4px}
+  .price-bar .price-weight{font-size:11px;color:var(--text-light);margin-top:2px}
+  .price-bar .price-installment{font-size:12px;color:var(--text-muted)}
+  .price-bar .price-installment strong{color:var(--text);font-weight:500}
+  .price-bar .btn-cart{
+    padding:14px 40px;background:var(--cta-bg);color:var(--cta-text);
+    font-family:var(--font-body);font-size:13px;text-transform:uppercase;
+    letter-spacing:2px;border:none;cursor:pointer;font-weight:500;transition:all .2s;
+  }
+  .price-bar .btn-cart:hover{background:var(--cta-hover)}
+
+  .viewer{flex:1;position:relative;background:var(--viewer-bg);min-width:380px;border-left:1px solid var(--border);transition:background .4s}
+  .viewer canvas{display:block}
+  .viewer-hint{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--text-light);letter-spacing:1.5px;text-transform:uppercase;opacity:.5}
+  .viewer-badge{position:absolute;top:20px;left:20px;background:var(--badge-bg);color:var(--badge-text);padding:6px 14px;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;font-weight:500;transition:background .4s}
+  .viewer-tools{position:absolute;top:20px;right:20px;display:flex;flex-direction:column;gap:8px}
+  .viewer-tool-btn{width:36px;height:36px;background:var(--panel-bg);border:1px solid var(--border);border-radius:4px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+  .viewer-tool-btn:hover{border-color:var(--primary)}
+  .viewer-tool-btn svg{width:16px;height:16px;stroke:var(--text-muted);fill:none;stroke-width:1.5}
+
+  /* Layout: config panel needs to account for price bar */
+  .config-wrapper{display:flex;flex-direction:column;flex:1;max-width:580px;overflow:hidden}
+  .config-panel{flex:1;overflow-y:auto}
+
+  @media(max-width:1100px){.stepper{width:60px}.step-label{display:none}.step{justify-content:center;padding:14px 0}.stepper-action span{display:none}.stepper-divider{margin:20px 10px}.header-nav{display:none}}
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <div class="topbar-yes"><strong>-20% na drugą</strong>, niedroższą sztukę na wybraną biżuterię</div>
+  <div class="topbar-verona"><strong>-20% na drugą, tańszą sztukę</strong> | VERONA20</div>
+</div>
+<header>
+  <div class="logo" id="logo-text">Konfigurator</div>
+  <nav class="header-nav">
+    <a href="#" class="nav-yes">Biżuteria</a><a href="#" class="nav-yes">Diamenty</a><a href="#" class="nav-yes">Zaręczyny</a><a href="#" class="nav-yes active">Ślub</a><a href="#" class="nav-yes">Kolekcje</a><a href="#" class="nav-yes">Promocje</a>
+    <a href="#" class="nav-verona">Biżuteria</a><a href="#" class="nav-verona">Zegarki</a><a href="#" class="nav-verona">Pierścionki zaręczynowe</a><a href="#" class="nav-verona active">Obrączki</a><a href="#" class="nav-verona">Fashion Edition</a><a href="#" class="nav-verona">Promocje</a>
+  </nav>
+  <div class="header-icons">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+    <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+  </div>
+</header>
+<div class="breadcrumb"><span class="nav-yes">Ślub</span><span class="nav-verona">Obrączki</span> / <span>Konfigurator obrączek</span></div>
+
+<div class="main">
+  <nav class="stepper">
+    <div class="step active" data-step="1"><div class="step-num">1</div><div class="step-label">Profil</div></div>
+    <div class="step" data-step="2"><div class="step-num">2</div><div class="step-label">Wymiary</div></div>
+    <div class="step" data-step="3"><div class="step-num">3</div><div class="step-label">Kruszec</div></div>
+    <div class="stepper-divider"></div>
+    <div class="stepper-action"><svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 105.64-11.36L1 10"/></svg><span>Cofnij</span></div>
+  </nav>
+
+  <div class="config-wrapper">
+    <div class="config-panel">
+      <div class="config-section active" data-section="1">
+        <h2>Profil obrączki</h2>
+        <p class="section-label">Kształt przekroju</p>
+        <div class="profile-grid">
+          <div class="profile-card selected" data-profile="flat"><svg viewBox="0 0 60 36"><rect x="5" y="6" width="50" height="24" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>Płaski</span></div>
+          <div class="profile-card" data-profile="court"><svg viewBox="0 0 60 36"><path d="M5 30 Q5 6 30 6 Q55 6 55 30" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="5" y1="30" x2="55" y2="30" stroke="currentColor" stroke-width="1.5"/></svg><span>Court</span></div>
+          <div class="profile-card" data-profile="d-shape"><svg viewBox="0 0 60 36"><path d="M5 30 L5 18 Q5 6 30 6 Q55 6 55 18 L55 30 Z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>D-Shape</span></div>
+          <div class="profile-card" data-profile="cushion"><svg viewBox="0 0 60 36"><path d="M8 30 Q2 18 15 10 Q30 4 45 10 Q58 18 52 30 Z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>Poduszka</span></div>
+        </div>
+      </div>
+      <div class="config-section" data-section="2">
+        <h2>Wymiary</h2>
+        <div class="dim-group"><label>Szerokość <span class="dim-val" id="width-val">4.0 mm</span></label><input type="range" id="ring-width" min="2" max="10" step="0.5" value="4"></div>
+        <div class="dim-group"><label>Grubość <span class="dim-val" id="thick-val">1.8 mm</span></label><input type="range" id="ring-thickness" min="1" max="3.5" step="0.1" value="1.8"></div>
+        <div class="dim-group"><label>Rozmiar (średnica) <span class="dim-val" id="size-val">18.0 mm</span></label><input type="range" id="ring-size" min="14" max="24" step="0.5" value="18"></div>
+      </div>
+      <div class="config-section" data-section="3">
+        <h2>Kruszec</h2>
+        <p class="section-label">Podział kolorów</p>
+        <div class="color-division-grid">
+          <div class="color-div-card selected" data-division="single"><div class="preview"><div style="background:linear-gradient(135deg,#d4a843,#f2d06b)"></div></div><span>Jeden kolor</span></div>
+          <div class="color-div-card" data-division="two"><div class="preview"><div style="background:linear-gradient(135deg,#d4a843,#f2d06b)"></div><div style="background:linear-gradient(135deg,#c0c0c0,#e8e8e8)"></div></div><span>Dwa kolory</span></div>
+          <div class="color-div-card" data-division="three"><div class="preview"><div style="background:linear-gradient(135deg,#d4a843,#f2d06b)"></div><div style="background:linear-gradient(135deg,#c0c0c0,#e8e8e8)"></div><div style="background:linear-gradient(135deg,#d4a843,#f2d06b)"></div></div><span>Trzy kolory</span></div>
+        </div>
+        <div id="metal-sections"></div>
+      </div>
+      <div class="nav-buttons">
+        <button class="btn btn-prev" id="btn-prev" style="display:none">Wstecz</button>
+        <button class="btn btn-next" id="btn-next">Dalej</button>
+      </div>
+    </div>
+
+    <!-- PRICE BAR -->
+    <div class="price-bar">
+      <div class="price-left">
+        <div class="price-label">Szacowana cena</div>
+        <div class="price-amount" id="price-display">1 890<small>PLN</small></div>
+        <div class="price-weight" id="weight-display">Waga: ~4.2 g</div>
+      </div>
+      <div style="text-align:right;display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+        <div class="price-installment">lub <strong id="installment-display">157,50 PLN</strong> × 12 rat 0%</div>
+        <button class="btn-cart">Dodaj do koszyka</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="viewer" id="viewer-container">
+    <div class="viewer-badge">Podgląd 3D</div>
+    <div class="viewer-tools"><div class="viewer-tool-btn" id="btn-reset-cam" title="Resetuj widok"><svg viewBox="0 0 24 24"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 105.64-11.36L1 10"/></svg></div></div>
+    <div class="viewer-hint">Przeciągnij aby obrócić · Scroll aby przybliżyć</div>
+  </div>
+</div>
+
+<div class="theme-switcher">
+  <button class="theme-btn yes-btn active" data-theme="yes">YES</button>
+  <button class="theme-btn verona-btn" data-theme="verona">VERONA</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+
+  // ===== PRICING MODEL =====
+  // Cena = (waga_g * cena_za_gram_metalu * mnożnik_próby) + marża + wykończenie
+  // Waga obliczana z objętości torusa: V = 2π²Rr² (uproszczone, R = promień pierścienia, r = promień przekroju)
+  // Gęstość złota: 19.3 g/cm³, platyny: 21.4 g/cm³
+
+  var metalPricing = {
+    'yellow-gold': { density: 19.3, basePerGram: 220 },  // PLN/g (14K base)
+    'white-gold':  { density: 18.6, basePerGram: 235 },
+    'rose-gold':   { density: 18.1, basePerGram: 225 },
+    'platinum':    { density: 21.4, basePerGram: 180 }
+  };
+
+  // Mnożnik ceny za gram w zależności od próby (proporcjonalny do zawartości złota)
+  var finenessMult = {
+    '8K':  0.58,   // 333
+    '9K':  0.65,   // 375
+    '10K': 0.72,   // 417
+    '14K': 1.00,   // 585 (baza)
+    '18K': 1.32,   // 750
+    '21K': 1.55,   // 875
+    '22K': 1.65    // 916
+  };
+
+  // Dodatkowy koszt za wykończenie
+  var surfaceCost = {
+    'polished': 0,
+    'matte': 50,
+    'brushed': 80
+  };
+
+  // Profil wpływa na objętość (mnożnik vs. pełny prostokąt)
+  var profileVolumeMult = {
+    'flat': 0.95,
+    'court': 0.70,
+    'd-shape': 0.75,
+    'cushion': 0.65
+  };
+
+  var marza = 350; // stała marża za robociznę
+
+  function calculatePrice(st) {
+    // Objętość obrączki w cm³
+    var R = (st.ringSize / 2) / 10;  // cm (promień obręczy)
+    var w = st.width / 10;            // cm
+    var t = st.thickness / 10;        // cm
+
+    // Przybliżona objętość: obwód * przekrój * mnożnik profilu
+    var circumference = 2 * Math.PI * R;
+    var crossSection = w * t;
+    var volMult = profileVolumeMult[st.profile] || 0.8;
+    var volume = circumference * crossSection * volMult; // cm³
+
+    var dc = st.division === 'single' ? 1 : st.division === 'two' ? 2 : 3;
+    var totalPrice = marza;
+    var totalWeight = 0;
+
+    for (var i = 0; i < dc; i++) {
+      var m = st.metals[i];
+      var mp = metalPricing[m.color];
+      var fm = finenessMult[m.fineness] || 1.0;
+      var sc = surfaceCost[m.surface] || 0;
+
+      // Każda sekcja to 1/dc objętości
+      var sectionVol = volume / dc;
+      var sectionWeight = sectionVol * mp.density;
+      var sectionPrice = sectionWeight * mp.basePerGram * fm + sc;
+
+      totalWeight += sectionWeight;
+      totalPrice += sectionPrice;
+    }
+
+    // Zaokrąglij do dziesiątek
+    totalPrice = Math.round(totalPrice / 10) * 10;
+
+    return {
+      price: totalPrice,
+      weight: totalWeight,
+      installment: Math.round(totalPrice / 12 * 100) / 100
+    };
+  }
+
+  function updatePrice() {
+    var result = calculatePrice(state);
+    var priceStr = result.price.toLocaleString('pl-PL');
+    document.getElementById('price-display').innerHTML = priceStr + '<small> PLN</small>';
+    document.getElementById('weight-display').textContent = 'Waga: ~' + result.weight.toFixed(1) + ' g';
+    var instStr = result.installment.toFixed(2).replace('.', ',');
+    document.getElementById('installment-display').textContent = instStr + ' PLN';
+  }
+
+  // ===== THEME =====
+  document.querySelectorAll('.theme-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var t = btn.dataset.theme;
+      if (t === 'verona') document.documentElement.setAttribute('data-theme', 'verona');
+      else document.documentElement.removeAttribute('data-theme');
+      document.getElementById('logo-text').textContent = t === 'verona' ? 'VERONA' : 'Konfigurator';
+      document.querySelectorAll('.theme-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+    });
+  });
+
+  // ===== STATE =====
+  var state = {
+    profile:'flat', width:4.0, thickness:1.8, ringSize:18.0, division:'single',
+    metals:[
+      {color:'yellow-gold',fineness:'14K',surface:'polished'},
+      {color:'white-gold',fineness:'14K',surface:'polished'},
+      {color:'yellow-gold',fineness:'14K',surface:'polished'}
+    ],
+    currentStep:1
+  };
+
+  var metalDefs = {
+    'yellow-gold':{color:0xC8982D,metalness:1.0,label:'Złoto żółte'},
+    'white-gold':{color:0xC0BCAE,metalness:1.0,label:'Złoto białe'},
+    'rose-gold':{color:0xB4715E,metalness:1.0,label:'Złoto różowe'},
+    'platinum':{color:0xCCCCCC,metalness:1.0,label:'Platyna'}
+  };
+  var surfaceDefs = {
+    'polished':{roughness:0.12,label:'Polerowane'},
+    'matte':{roughness:0.55,label:'Matowe'},
+    'brushed':{roughness:0.35,label:'Szczotkowane'}
+  };
+
+  // ===== THREE.JS =====
+  var container = document.getElementById('viewer-container');
+  var scene = new THREE.Scene();
+  scene.background = new THREE.Color(0xe8e5e0);
+  var camera = new THREE.PerspectiveCamera(28, 1, 0.1, 100);
+  var renderer = new THREE.WebGLRenderer({antialias:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.0;
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  container.insertBefore(renderer.domElement, container.firstChild);
+
+  var envCanvas = document.createElement('canvas');
+  envCanvas.width = 1024; envCanvas.height = 512;
+  var ctx = envCanvas.getContext('2d');
+  ctx.fillStyle = '#2a2520'; ctx.fillRect(0, 0, 1024, 512);
+  var g1 = ctx.createRadialGradient(512,60,0,512,60,350);
+  g1.addColorStop(0,'rgba(255,248,235,1)');g1.addColorStop(0.3,'rgba(255,245,225,0.7)');g1.addColorStop(0.7,'rgba(200,190,170,0.2)');g1.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=g1;ctx.fillRect(0,0,1024,512);
+  var g2=ctx.createLinearGradient(850,0,1024,0);g2.addColorStop(0,'rgba(0,0,0,0)');g2.addColorStop(0.3,'rgba(220,210,195,0.4)');g2.addColorStop(0.6,'rgba(255,250,240,0.8)');g2.addColorStop(1,'rgba(200,190,175,0.3)');
+  ctx.fillStyle=g2;ctx.fillRect(0,50,1024,200);
+  var g3=ctx.createLinearGradient(0,0,200,0);g3.addColorStop(0,'rgba(180,185,195,0.4)');g3.addColorStop(0.5,'rgba(200,200,210,0.6)');g3.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=g3;ctx.fillRect(0,100,300,180);
+  var g4=ctx.createRadialGradient(400,480,0,400,480,300);g4.addColorStop(0,'rgba(200,180,140,0.5)');g4.addColorStop(0.5,'rgba(160,140,110,0.2)');g4.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=g4;ctx.fillRect(0,0,1024,512);
+  var g5=ctx.createRadialGradient(600,100,0,600,100,80);g5.addColorStop(0,'rgba(255,255,250,1)');g5.addColorStop(0.4,'rgba(255,250,240,0.5)');g5.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=g5;ctx.fillRect(0,0,1024,512);
+  var g6=ctx.createRadialGradient(200,150,0,200,150,50);g6.addColorStop(0,'rgba(255,252,245,0.9)');g6.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=g6;ctx.fillRect(0,0,1024,512);
+
+  var canvasTex = new THREE.CanvasTexture(envCanvas);
+  canvasTex.mapping = THREE.EquirectangularReflectionMapping;
+  var pmrem = new THREE.PMREMGenerator(renderer);
+  pmrem.compileEquirectangularShader();
+  var processedEnv = pmrem.fromEquirectangular(canvasTex).texture;
+  scene.environment = processedEnv;
+  canvasTex.dispose(); pmrem.dispose();
+
+  scene.add(new THREE.HemisphereLight(0xfff8f0,0x3d3530,0.3));
+  var keyL = new THREE.DirectionalLight(0xfff5e8,0.5); keyL.position.set(3,5,4); scene.add(keyL);
+  var shM = new THREE.Mesh(new THREE.PlaneGeometry(4,4), new THREE.MeshBasicMaterial({color:0x000000,transparent:true,opacity:0.04}));
+  shM.rotation.x=-Math.PI/2; shM.position.y=-0.52; scene.add(shM);
+
+  var ringGroup = new THREE.Group(); scene.add(ringGroup);
+
+  function profilePts(prof,W,T) {
+    var hw=W/2,pts=[],N=32,i,t,a;
+    switch(prof) {
+      case 'flat':var r=T*0.1;pts.push(new THREE.Vector2(0,-hw));pts.push(new THREE.Vector2(T-r,-hw));
+        for(i=0;i<=8;i++){a=-Math.PI/2+(Math.PI/2)*(i/8);pts.push(new THREE.Vector2(T-r+r*Math.cos(a),-hw+r+r*Math.sin(a)))}
+        for(i=0;i<=8;i++){a=(Math.PI/2)*(i/8);pts.push(new THREE.Vector2(T-r+r*Math.cos(a),hw-r+r*Math.sin(a)))}
+        pts.push(new THREE.Vector2(T-r,hw));pts.push(new THREE.Vector2(0,hw));break;
+      case 'court':for(i=0;i<=N;i++){t=i/N;a=Math.PI*t-Math.PI/2;pts.push(new THREE.Vector2(T*0.5*(1+Math.cos(a)),hw*Math.sin(a)))}pts.push(new THREE.Vector2(0,hw));pts.push(new THREE.Vector2(0,-hw));break;
+      case 'd-shape':pts.push(new THREE.Vector2(0,-hw));for(i=0;i<=N;i++){t=i/N;a=Math.PI*t-Math.PI/2;pts.push(new THREE.Vector2(T*(0.25+0.75*Math.max(0,Math.cos(a))),hw*Math.sin(a)))}pts.push(new THREE.Vector2(0,hw));break;
+      case 'cushion':for(i=0;i<=N;i++){t=i/N;a=Math.PI*t-Math.PI/2;pts.push(new THREE.Vector2(T*0.55*(1+Math.cos(a)),hw*Math.sin(a)))}
+        for(i=N;i>=0;i--){t=i/N;a=Math.PI*t-Math.PI/2;pts.push(new THREE.Vector2(T*0.15*(1+Math.cos(a)),hw*Math.sin(a)))}break;
+    }
+    return pts;
+  }
+
+  function buildRing() {
+    while(ringGroup.children.length){var c=ringGroup.children[0];if(c.geometry)c.geometry.dispose();if(c.material)c.material.dispose();ringGroup.remove(c)}
+    var sc=0.05,R=(state.ringSize/2)*sc,W=state.width*sc,T=state.thickness*sc;
+    var pp=profilePts(state.profile,W,T);
+    var op=pp.map(function(p){return new THREE.Vector2(R+p.x,p.y)});
+    var segs=160,dc=state.division==='single'?1:state.division==='two'?2:3;
+    function mat(idx){var m=state.metals[idx],mc=metalDefs[m.color],sf=surfaceDefs[m.surface];return new THREE.MeshStandardMaterial({color:mc.color,metalness:mc.metalness,roughness:sf.roughness,envMap:processedEnv,envMapIntensity:2.2,side:THREE.DoubleSide})}
+    if(dc===1){var g=new THREE.LatheGeometry(op,segs,0,Math.PI*2);g.computeVertexNormals();var mm=new THREE.Mesh(g,mat(0));mm.rotation.x=Math.PI/2;ringGroup.add(mm)}
+    else{var ap=(Math.PI*2)/dc,sp=Math.floor(segs/dc);for(var i=0;i<dc;i++){var g2=new THREE.LatheGeometry(op,sp,i*ap,ap);g2.computeVertexNormals();var m2=new THREE.Mesh(g2,mat(Math.min(i,2)));m2.rotation.x=Math.PI/2;ringGroup.add(m2)}}
+    updatePrice();
+  }
+  buildRing();
+
+  var drag=false,prev={x:0,y:0},sph={theta:0.5,phi:1.1,radius:3.0};
+  function updCam(){camera.position.x=sph.radius*Math.sin(sph.phi)*Math.cos(sph.theta);camera.position.y=sph.radius*Math.cos(sph.phi);camera.position.z=sph.radius*Math.sin(sph.phi)*Math.sin(sph.theta);camera.lookAt(0,0,0)}
+  updCam();
+  renderer.domElement.addEventListener('pointerdown',function(e){drag=true;prev={x:e.clientX,y:e.clientY}});
+  window.addEventListener('pointerup',function(){drag=false});
+  window.addEventListener('pointermove',function(e){if(!drag)return;sph.theta-=(e.clientX-prev.x)*0.005;sph.phi=Math.max(0.3,Math.min(2.8,sph.phi+(e.clientY-prev.y)*0.005));prev={x:e.clientX,y:e.clientY};updCam()});
+  renderer.domElement.addEventListener('wheel',function(e){sph.radius=Math.max(1.5,Math.min(8,sph.radius+e.deltaY*0.003));updCam();e.preventDefault()},{passive:false});
+  document.getElementById('btn-reset-cam').addEventListener('click',function(){sph={theta:0.5,phi:1.1,radius:3.0};updCam()});
+
+  var stepsEl=document.querySelectorAll('.step'),secs=document.querySelectorAll('.config-section');
+  var bP=document.getElementById('btn-prev'),bN=document.getElementById('btn-next');
+  function goStep(n){state.currentStep=n;stepsEl.forEach(function(s){var sn=parseInt(s.dataset.step);s.classList.remove('active','completed');if(sn===n)s.classList.add('active');else if(sn<n)s.classList.add('completed')});secs.forEach(function(s){s.classList.toggle('active',parseInt(s.dataset.section)===n)});bP.style.display=n>1?'':'none';bN.textContent=n>=3?'Zakończ':'Dalej'}
+  stepsEl.forEach(function(s){s.addEventListener('click',function(){goStep(parseInt(s.dataset.step))})});
+  bN.addEventListener('click',function(){if(state.currentStep<3)goStep(state.currentStep+1)});
+  bP.addEventListener('click',function(){if(state.currentStep>1)goStep(state.currentStep-1)});
+
+  document.querySelectorAll('.profile-card').forEach(function(c){c.addEventListener('click',function(){document.querySelectorAll('.profile-card').forEach(function(x){x.classList.remove('selected')});c.classList.add('selected');state.profile=c.dataset.profile;buildRing()})});
+
+  [{id:'ring-width',k:'width',v:'width-val'},{id:'ring-thickness',k:'thickness',v:'thick-val'},{id:'ring-size',k:'ringSize',v:'size-val'}].forEach(function(d){document.getElementById(d.id).addEventListener('input',function(e){state[d.k]=parseFloat(e.target.value);document.getElementById(d.v).textContent=state[d.k].toFixed(1)+' mm';buildRing()})});
+
+  document.querySelectorAll('.color-div-card').forEach(function(c){c.addEventListener('click',function(){document.querySelectorAll('.color-div-card').forEach(function(x){x.classList.remove('selected')});c.classList.add('selected');state.division=c.dataset.division;renderMetal();buildRing()})});
+
+  function renderMetal(){
+    var w=document.getElementById('metal-sections');var cnt=state.division==='single'?1:state.division==='two'?2:3;w.innerHTML='';
+    for(var idx=0;idx<cnt;idx++){(function(i){var m=state.metals[i];var sec=document.createElement('div');sec.className='metal-selector';
+    var sw='',fn='',sf='';
+    Object.keys(metalDefs).forEach(function(k){var d=metalDefs[k];sw+='<div class="metal-swatch '+k+(m.color===k?' selected':'')+'" data-idx="'+i+'" data-color="'+k+'"></div>';if(m.color===k)sw+='<span class="metal-label">'+d.label+'</span>'});
+    ['8K','9K','10K','14K','18K','21K','22K'].forEach(function(f){fn+='<div class="fineness-btn'+(m.fineness===f?' selected':'')+'" data-idx="'+i+'" data-fin="'+f+'">'+f+'</div>'});
+    Object.keys(surfaceDefs).forEach(function(k){sf+='<div class="surface-btn'+(m.surface===k?' selected':'')+'" data-idx="'+i+'" data-surface="'+k+'">'+surfaceDefs[k].label+'</div>'});
+    sec.innerHTML='<div class="ms-title">Kolor '+(cnt>1?(i+1):'')+'</div><div class="metal-row">'+sw+'</div><div class="section-label" style="margin-top:12px">Próba</div><div class="fineness-grid">'+fn+'</div><div class="section-label" style="margin-top:14px">Powierzchnia</div><div class="surface-row">'+sf+'</div>';
+    w.appendChild(sec)})(idx)}
+    w.querySelectorAll('.metal-swatch').forEach(function(el){el.addEventListener('click',function(){state.metals[parseInt(el.dataset.idx)].color=el.dataset.color;renderMetal();buildRing()})});
+    w.querySelectorAll('.fineness-btn').forEach(function(el){el.addEventListener('click',function(){state.metals[parseInt(el.dataset.idx)].fineness=el.dataset.fin;renderMetal();updatePrice()})});
+    w.querySelectorAll('.surface-btn').forEach(function(el){el.addEventListener('click',function(){state.metals[parseInt(el.dataset.idx)].surface=el.dataset.surface;renderMetal();buildRing()})});
+  }
+  renderMetal();
+
+  function resize(){var w=container.clientWidth,h=container.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h)}
+  window.addEventListener('resize',resize);resize();
+  var rot=0;(function anim(){requestAnimationFrame(anim);rot+=0.0015;ringGroup.rotation.y=rot;renderer.render(scene,camera)})();
+})();
+</script>
+</body>
+</html>
