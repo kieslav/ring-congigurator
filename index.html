@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="pl" id="html-lang">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Konfigurator Obrączek</title>
-  <script type="module" crossorigin src="./index-CvKBRZBB.js"></script>
-  <link rel="stylesheet" crossorigin href="./index-BahFsMLF.css">
+  <script type="module" crossorigin src="./index-Bvk462t1.js"></script>
+  <link rel="stylesheet" crossorigin href="./index-BnrAlMYC.css">
 </head>
 <body>
 
@@ -32,11 +32,15 @@
       <a href="#" class="nav-verona">Fashion</a>
       <a href="#" class="nav-verona">Promocje</a>
     </nav>
-    <div class="header-icons">
-      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-      <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
-      <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+    <div class="header-actions">
+      <div class="brand-switcher">
+        <button class="brand-btn yes-btn active" data-theme="yes">YES</button>
+        <button class="brand-btn verona-btn" data-theme="verona">VERONA</button>
+      </div>
+      <div class="lang-switcher">
+        <button class="lang-btn active" data-lang="pl">PL</button>
+        <button class="lang-btn" data-lang="en">EN</button>
+      </div>
     </div>
   </header>
 
@@ -93,10 +97,17 @@
     <div class="viewer" id="viewer-container">
       <div class="viewer-badge">Podgląd 3D</div>
       <div class="viewer-tools">
+        <div class="viewer-tool-btn" id="btn-rotate" title="Zatrzymaj obracanie">
+          <svg viewBox="0 0 24 24" class="icon-rotate">
+            <rect x="6" y="4" width="4" height="16" rx="1" fill="none" stroke="currentColor" stroke-width="2" class="pause-icon"/>
+            <rect x="14" y="4" width="4" height="16" rx="1" fill="none" stroke="currentColor" stroke-width="2" class="pause-icon"/>
+            <polygon points="8,5 8,19 19,12" fill="currentColor" class="play-icon"/>
+          </svg>
+        </div>
         <div class="viewer-tool-btn" id="btn-reset-cam" title="Resetuj widok">
           <svg viewBox="0 0 24 24">
-            <path d="M1 4v6h6"/>
-            <path d="M3.51 15a9 9 0 105.64-11.36L1 10"/>
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M3 3v5h5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
       </div>
@@ -112,13 +123,13 @@
           <h2>Profil obrączki</h2>
           <p class="section-label">Kształt przekroju</p>
           <div class="profile-grid">
-            <div class="profile-card" data-profile="flat">
+            <div class="profile-card selected" data-profile="flat">
               <svg viewBox="0 0 60 36">
                 <rect x="5" y="6" width="50" height="24" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
               </svg>
               <span>Płaski</span>
             </div>
-            <div class="profile-card selected" data-profile="court">
+            <div class="profile-card" data-profile="court">
               <svg viewBox="0 0 60 36">
                 <path d="M5 30 Q5 6 30 6 Q55 6 55 30" fill="none" stroke="currentColor" stroke-width="1.5"/>
                 <line x1="5" y1="30" x2="55" y2="30" stroke="currentColor" stroke-width="1.5"/>
@@ -196,7 +207,7 @@
             <label class="engraving-toggle-label" for="engraving-toggle">Dodaj grawerowanie</label>
             <div class="engraving-toggle-wrap">
               <input type="checkbox" id="engraving-toggle" class="engraving-checkbox">
-              <span class="engraving-switch"></span>
+              <label for="engraving-toggle" class="engraving-switch"></label>
             </div>
           </div>
 
@@ -257,12 +268,6 @@
 
     </div>
 
-  </div>
-
-  <!-- ===== THEME SWITCHER ===== -->
-  <div class="theme-switcher">
-    <button class="theme-btn yes-btn active" data-theme="yes">YES</button>
-    <button class="theme-btn verona-btn" data-theme="verona">VERONA</button>
   </div>
 
   <!-- ===== APP ENTRY POINT ===== -->
